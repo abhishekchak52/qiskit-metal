@@ -133,3 +133,7 @@ settings.json
 Qiskit-Metal.code-workspace
 qiskit_metal/.pylintrc
 launch.json
+
+# pixi environments
+.pixi
+*.egg-info
