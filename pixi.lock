@@ -7995,7 +7995,7 @@ packages:
 - pypi: ./
   name: qiskit-metal
   version: 0.5.0
-  sha256: 8340ac0d268ede5654784de292905c7604595b367d3447c2a904207124883c8b
+  sha256: ef56352918bf55d22424a9d2772c4b66e29381639b77dbb7f522b0b6baee615b
   requires_dist:
   - addict>=2.4.0
   - descartes>=1.1.0
