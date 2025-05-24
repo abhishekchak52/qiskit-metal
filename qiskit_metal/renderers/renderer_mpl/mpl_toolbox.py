@@ -22,20 +22,18 @@ import shapely
 from cycler import cycler
 from matplotlib.cbook import _OrderedSet
 from shapely.geometry import LinearRing, Polygon  # Point, LineString,
-import logging
 
-from qiskit_metal.designs.design_base import QDesign
 from ... import Dict
 from ...draw import BaseGeometry
 from .mpl_interaction import figure_pz
 from .patch import PolygonPatch
-from .mpl_renderer import QMplRenderer
+
 
 
 __all__ = [
     '_render_poly_zkm', 'render_poly', 'render', 'style_axis_simple',
     'get_prop_cycle', 'style_axis_standard', 'figure_spawn',
-    '_axis_set_watermark_img', 'clear_axis', 'plot_design_headless'
+    '_axis_set_watermark_img', 'clear_axis'
 ]
 
 ##########################################################################################
@@ -50,36 +48,6 @@ style_config = Dict(
 )
 """Style configuration"""
 
-
-
-
-
-logging.basicConfig(level=logging.INFO)
-
-
-
-def plot_design_headless(design: QDesign, **kwargs):
-    """Plot a design in headless mode.
-
-    Args:
-        design (QDesign): The design to plot.
-        **kwargs: Additional keyword arguments to pass to plt.subplots.
-
-    Returns:
-        fig (matplotlib.figure.Figure): The figure.
-        ax (matplotlib.axes.Axes): The axis.
-    """
-    headless_plot_logger = logging.getLogger(__name__)
-
-    design_renderer = QMplRenderer(canvas=None, design=design, logger=headless_plot_logger)
-    fig, ax = plt.subplots(1, 1, layout='constrained', **kwargs)
-    xmin, ymin, xmax, ymax = design.get_x_y_for_chip("main")[0]
-    ax.set_xlim(xmin, xmax)
-    ax.set_ylim(ymin, ymax)
-    design_renderer.render(ax)
-    ax.set_aspect('equal')
-    
-    return fig, ax
 
 
 def _render_poly_zkm(poly: Polygon, ax, kw=None, kw_hole=None):
