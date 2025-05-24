@@ -24,7 +24,7 @@
 import unittest
 import pandas as pd
 
-from qiskit_metal.designs.design_base import QDesign
+from qiskit_metal.designs.design_base import QDesign, Dict
 from qiskit_metal.designs.design_planar import DesignPlanar
 from qiskit_metal.designs.interface_components import Components
 from qiskit_metal.designs.net_info import QNet
@@ -33,6 +33,8 @@ from qiskit_metal.qlibrary.qubits.transmon_pocket import TransmonPocket
 from qiskit_metal.tests.assertions import AssertionsMixin
 
 from qiskit_metal.qlibrary.lumped.resonator_coil_rect import ResonatorCoilRect
+
+from qiskit_metal import config
 
 
 class TestDesign(unittest.TestCase, AssertionsMixin):
@@ -498,6 +500,10 @@ class TestDesign(unittest.TestCase, AssertionsMixin):
     def test_design_get_list_of_tables_in_metadata(self):
         """Tests the get_list_of_tables_in_metadata function in design_base.py
         by exeucting get_table_values_form_renderers in a component."""
+        # Skip this test in headless mode as it expects all renderers to be loaded.
+        if config.is_headless():
+            self.skipTest("Test skipped in headless mode.")
+
         design = DesignPlanar()
         q1 = TransmonPocket(design, 'Q1')
 

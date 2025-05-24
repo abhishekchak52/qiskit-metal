@@ -60,7 +60,7 @@ class QDesign():
     def __init__(self,
                  metadata: dict = None,
                  overwrite_enabled: bool = False,
-                 enable_renderers: bool = True):
+                 enable_renderers: bool = None):
         """Create a new Metal QDesign.
 
         Args:
@@ -82,7 +82,9 @@ class QDesign():
 
             enable_renderers: Enable the renderers during the init() of design.
                         The list in config.renderers_to_load() to determine
-                        which renderers to enable.
+                        which renderers to enable. If None (default), will be 
+                        automatically determined based on environment (False for 
+                        headless, True for GUI environments).
         """
 
         # _qcomponent_latest_assigned_id -- Used to keep a tally and ID of all components within an
@@ -145,6 +147,11 @@ class QDesign():
         # Dict used to populate the columns of QGeometry table i.e. path,
         # junction, poly etc.
         self.renderer_defaults_by_table = Dict()
+
+        # Determine if renderers should be enabled based on environment
+        if enable_renderers is None:
+            # Auto-detect based on headless mode
+            enable_renderers = config.should_enable_gui()
 
         # Instantiate and register renderers to Qdesign.renderers
         self._renderers = Dict()
@@ -898,9 +905,18 @@ class QDesign():
         First import the renderers identified in
         config.renderers_to_load. Then register them into QDesign.
         Finally populate self.renderer_defaults_by_table
+        
+        In headless mode, only loads headless-compatible renderers.
         """
 
-        for renderer_key, import_info in config.renderers_to_load.items():
+        # Choose renderer set based on environment
+        if config.is_headless():
+            renderers_config = config.headless_compatible_renderers
+            self.logger.info('Running in headless mode, loading only headless-compatible renderers')
+        else:
+            renderers_config = config.renderers_to_load
+
+        for renderer_key, import_info in renderers_config.items():
             if 'path_name' in import_info:
                 path_name = import_info.path_name
             else:
@@ -921,19 +937,25 @@ class QDesign():
 
             # check if module_name exists
             if importlib.util.find_spec(path_name):
-                class_renderer = getattr(importlib.import_module(path_name),
-                                         class_name, None)
+                try:
+                    class_renderer = getattr(importlib.import_module(path_name),
+                                             class_name, None)
 
-                # check if class_name is in module
-                if class_renderer is not None:
-                    a_renderer = class_renderer(self, initiate=False)
+                    # check if class_name is in module
+                    if class_renderer is not None:
+                        a_renderer = class_renderer(self, initiate=False)
 
-                    # register renderers here.
-                    self._renderers[renderer_key] = a_renderer
-                else:
+                        # register renderers here.
+                        self._renderers[renderer_key] = a_renderer
+                    else:
+                        self.logger.warning(
+                            f'Renderer={renderer_key} is not registered in QDesign.  '
+                            f'The class_name={class_name} was not found.')
+                        continue
+                except ImportError as e:
                     self.logger.warning(
-                        f'Renderer={renderer_key} is not registered in QDesign.  '
-                        f'The class_name={class_name} was not found.')
+                        f'Renderer={renderer_key} could not be imported: {e}. '
+                        f'This may be due to missing dependencies in headless mode.')
                     continue
             else:
                 self.logger.warning(

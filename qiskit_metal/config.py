@@ -46,6 +46,18 @@ renderers_to_load = Dict(
 Define the renderes to load. Just provide the module names here.
 """
 
+# Headless-compatible renderers that don't require Qt
+headless_compatible_renderers = Dict(
+    gds=Dict(path_name='qiskit_metal.renderers.renderer_gds.gds_renderer',
+             class_name='QGDSRenderer'),
+    gmsh=Dict(path_name='qiskit_metal.renderers.renderer_gmsh.gmsh_renderer',
+              class_name='QGmshRenderer'),
+    elmer=Dict(path_name='qiskit_metal.renderers.renderer_elmer.elmer_renderer',
+               class_name='QElmerRenderer'))
+"""
+Define renderers that work in headless environments without Qt dependencies.
+"""
+
 GUI_CONFIG = Dict(
     load_metal_modules=Dict(Qubits='qiskit_metal.qlibrary.qubits',
                             TLines='qiskit_metal.qlibrary.tlines',
@@ -137,6 +149,82 @@ def is_building_docs():
     from pathlib import Path  # pylint: disable=import-outside-toplevel
     build_docs_file = Path(__file__).parent.parent / "docs" / ".buildingdocs"
     return Path.exists(build_docs_file)
+
+
+def is_headless():
+    """Comprehensive check for headless environment.
+    
+    Returns:
+        bool: True if running in headless mode, False otherwise
+    """
+    # Check explicit headless environment variable
+    if os.getenv('QISKIT_METAL_HEADLESS', '').lower() in ('true', '1', 'yes'):
+        return True
+    
+    # Check if building docs
+    if is_building_docs():
+        return True
+    
+    # Check for remote/headless environments
+    if is_remote_environment():
+        return True
+    
+    # Check for CI/testing environments
+    if is_ci_environment():
+        return True
+    
+    return False
+
+
+def is_remote_environment():
+    """Check if running in a remote environment (SSH, etc.).
+    
+    Returns:
+        bool: True if in remote environment
+    """
+    # Check for SSH connection
+    if os.getenv('SSH_CLIENT') or os.getenv('SSH_TTY') or os.getenv('SSH_CONNECTION'):
+        return True
+    
+    # Check for missing DISPLAY variable on Unix systems
+    if os.name != 'nt' and not os.getenv('DISPLAY'):
+        return True
+    
+    # Check for remote Jupyter environments
+    # Remote Jupyter often doesn't have proper X11 forwarding
+    if is_using_ipython():
+        # Additional checks for remote Jupyter
+        if not os.getenv('DISPLAY') and os.name != 'nt':
+            return True
+        # Check for common remote Jupyter indicators
+        if os.getenv('JUPYTER_SERVER_ROOT') or os.getenv('JUPYTERHUB_SERVICE_PREFIX'):
+            return True
+    
+    return False
+
+
+def is_ci_environment():
+    """Check if running in a CI/testing environment.
+    
+    Returns:
+        bool: True if in CI environment
+    """
+    ci_indicators = [
+        'CI', 'CONTINUOUS_INTEGRATION', 'GITHUB_ACTIONS', 'TRAVIS', 
+        'CIRCLECI', 'JENKINS_URL', 'GITLAB_CI', 'BUILDKITE',
+        'TF_BUILD'  # Azure DevOps
+    ]
+    
+    return any(os.getenv(indicator) for indicator in ci_indicators)
+
+
+def should_enable_gui():
+    """Determine if GUI components should be enabled.
+    
+    Returns:
+        bool: True if GUI should be enabled, False for headless mode
+    """
+    return not is_headless()
 
 
 _ipython = is_using_ipython()

@@ -50,8 +50,18 @@ def __setup_Qt_backend():  # pylint: disable=invalid-name
 
     This function needs to remain in the __init__ of the library's root
     to prevent Qt windows from hanging.
+    
+    Only runs if not in headless mode.
     """
     # pylint: disable=import-outside-toplevel
+    from . import config
+    
+    # Skip Qt setup entirely in headless mode
+    if config.is_headless():
+        # Use non-Qt matplotlib backend for headless environments
+        import matplotlib as mpl
+        mpl.use("Agg")  # Use Anti-Grain Geometry backend (non-interactive)
+        return
 
     # When in vscode and in debug-mode, may want to comment
     # next line out, "os.environ["QT_API"] = "pyside2""
@@ -104,13 +114,12 @@ def __setup_Qt_backend():  # pylint: disable=invalid-name
             # AA_DontUseNativeMenuBar
             # AA_MacDontSwapCtrlAndMeta
 
-    if not os.getenv('QISKIT_METAL_HEADLESS', None):
-        # pylint: disable=import-outside-toplevel
-        import matplotlib as mpl
-        mpl.use("QtAgg")
-        # pylint: disable=redefined-outer-name
-        import matplotlib.pyplot as plt
-        plt.ion()  # interactive
+    # Set up matplotlib with Qt backend for GUI mode
+    import matplotlib as mpl
+    mpl.use("QtAgg")
+    # pylint: disable=redefined-outer-name
+    import matplotlib.pyplot as plt
+    plt.ion()  # interactive
 
 
 __setup_Qt_backend()
@@ -146,8 +155,37 @@ from . import analyses
 from . import toolbox_python
 from . import toolbox_metal
 
-# Metal GUI
-from ._gui.main_window import MetalGUI
+# Lazy import for MetalGUI to avoid loading Qt dependencies when not needed
+def MetalGUI(*args, **kwargs):
+    """Lazy-loaded MetalGUI to avoid Qt dependencies in headless mode.
+    
+    Args:
+        *args: Arguments to pass to MetalGUI constructor
+        **kwargs: Keyword arguments to pass to MetalGUI constructor
+        
+    Returns:
+        MetalGUI instance
+        
+    Raises:
+        ImportError: If GUI components cannot be loaded (e.g., in headless mode)
+    """
+    if config.is_headless():
+        raise ImportError(
+            "MetalGUI is not available in headless mode. "
+            "GUI components require PySide6/Qt which is not available in headless environments. "
+            "To enable GUI mode, ensure you have a display available and set "
+            "QISKIT_METAL_HEADLESS=false or run in a local environment with GUI support."
+        )
+    
+    try:
+        # pylint: disable=import-outside-toplevel
+        from ._gui.main_window import MetalGUI as _MetalGUI
+        return _MetalGUI(*args, **kwargs)
+    except ImportError as e:
+        raise ImportError(
+            f"Failed to import MetalGUI. GUI dependencies may not be installed: {e}. "
+            "Install GUI dependencies or use headless mode by setting QISKIT_METAL_HEADLESS=true."
+        ) from e
 
 # Utility modules
 # For plotting in matplotlib;  May be superseded by a renderer?
