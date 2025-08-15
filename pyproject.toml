@@ -16,11 +16,11 @@
         "Programming Language :: Python :: 3.9",
         "Topic :: Scientific/Engineering",
     ]
-    keywords = [ "eda", "qiskit", "quantum", "sdk" ]
+    keywords = ["eda", "qiskit", "quantum", "sdk"]
     license = "Apache-2.0"
-    license-files = [ "LICENSE.txt" ]
+    license-files = ["LICENSE.txt"]
     readme = { file = "README.md", content-type = "text/markdown" }
-    requires-python = ">=3.10"
+    requires-python = ">=3.9"
     urls = { bugtracker = "https://github.com/Qiskit/qiskit-metal/issues", documentation = "https://qiskit-community.github.io/qiskit-metal/", source = "https://github.com/Qiskit/qiskit-metal" }
     version = "0.5.0"
     dependencies = [
@@ -47,7 +47,7 @@
     ]
 
 [build-system]
-    requires      = [ "uv_build>=0.8.4,<0.9.0" ]
+    requires      = ["uv_build>=0.8.4,<0.9.0"]
     build-backend = "uv_build"
 
 # Accounting for flat layout
@@ -57,22 +57,49 @@
 
 [dependency-groups]
     docs = [
-        "nbsphinx>=0.9.7",
-        "numpydoc>=1.9.0",
-        "qiskit-sphinx-theme>=2.0.0",
-        "sphinx>=8.1.3",
-        "sphinx-intl>=2.3.2",
+        "nbsphinx>=0.8.6",
+        "numpydoc>=1.5.0",
+        "qiskit-sphinx-theme>=1.16.0",
+        "sphinx>=6.0.0",
+        "sphinx-intl>=2.1.0",
     ]
-    lint = [
-        "ruff>=0.12.8",
-    ]
-    test = [
-        "pytest>=8.4.1",
-        "pytest-rich>=0.2.0",
-    ]
+    lint = ["ruff>=0.12.8"]
+    test = ["pytest>=8.4.1", "pytest-rich>=0.2.0"]
 
 
 [tool.pytest.ini_options]
     minversion = "6.0"
     addopts    = "--rich --ignore=qiskit_metal/tests/test_renderers.py"
-    testpaths  = [ "qiskit_metal/tests/" ]
+    testpaths  = ["qiskit_metal/tests/"]
+
+
+[tool.tox]
+    requires = ["tox>=4", "tox-uv>=1.27"]
+    env_list = ["py3.13", "py3.12", "py3.11", "py3.10", "py3.9", "lint", "docs"]
+
+
+[tool.tox.env_run_base]
+    description       = "Run tests against the wheel using pytest"
+    packages          = ["wheel"]
+    set_env           = { VIRTUAL_ENV = "{envdir}", LANGUAGE = "en_US", QISKIT_METAL_HEADLESS = "1", LC_ALL = "en_US.utf-8" }
+    dependency_groups = ["test"]
+    commands          = [["python", "-m", "pytest", "{posargs}"]]
+
+
+[tool.tox.env.docs]
+    description = "Build the documentation using sphinx"
+    base_python = ["py3.9"]
+    pass_env = ["DOCS_FROM_MASTER", "QISKIT_DOCS_BUILD_TUTORIALS"]
+    set_env = { METAL_BUILD_DOCS = "True" }
+    dependency_groups = ["docs"]
+    change_dir = "{toxinidir}/docs"
+    commands = [
+        [
+            "sphinx-build",
+            "-b",
+            "html",
+            "{posargs}",
+            "{toxinidir}/docs/",
+            "{toxinidir}/docs/_build/html",
+        ],
+    ]
