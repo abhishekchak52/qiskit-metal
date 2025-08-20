@@ -12,15 +12,15 @@
         "Operating System :: Microsoft :: Windows",
         "Operating System :: POSIX :: Linux",
         "Programming Language :: Python :: 3 :: Only",
-        "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
         "Topic :: Scientific/Engineering",
     ]
     keywords = ["eda", "qiskit", "quantum", "sdk"]
     license = "Apache-2.0"
     license-files = ["LICENSE.txt"]
     readme = { file = "README.md", content-type = "text/markdown" }
-    requires-python = ">=3.9"
+    requires-python = ">=3.9,<3.13"
     urls = { bugtracker = "https://github.com/Qiskit/qiskit-metal/issues", documentation = "https://qiskit-community.github.io/qiskit-metal/", source = "https://github.com/Qiskit/qiskit-metal" }
     version = "0.5.0"
     dependencies = [
@@ -40,7 +40,7 @@
         "shapely~=2.0.1",
         "scqubits>=3.1.0,<=3.4.0",
         "gmsh~=4.11.1",
-        "pyaedt>=0.6.46,<0.10.0; platform_system == 'Windows'",
+        "pyaedt>=0.6.46,<0.10.0; platform_system != 'Darwin'",
         "pyyaml>=6.0",
         "cython<3.0.0",
         "descartes>=1.1.0",
@@ -75,7 +75,7 @@
 
 [tool.tox]
     requires = ["tox>=4", "tox-uv>=1.27"]
-    env_list = ["py3.13", "py3.12", "py3.11", "py3.10", "py3.9", "lint", "docs"]
+    env_list = ["py3.12", "py3.11", "py3.10", "py3.9", "lint", "docs"]
 
 
 [tool.tox.env_run_base]
@@ -92,14 +92,16 @@
     pass_env = ["DOCS_FROM_MASTER", "QISKIT_DOCS_BUILD_TUTORIALS"]
     set_env = { METAL_BUILD_DOCS = "True" }
     dependency_groups = ["docs"]
-    change_dir = "{toxinidir}/docs"
+    # change_dir = "{toxinidir}/docs"
     commands = [
         [
             "sphinx-build",
             "-b",
             "html",
+            "-j",
+            "auto",
             "{posargs}",
-            "{toxinidir}/docs/",
+            "{toxinidir}/docs",
             "{toxinidir}/docs/_build/html",
         ],
     ]
