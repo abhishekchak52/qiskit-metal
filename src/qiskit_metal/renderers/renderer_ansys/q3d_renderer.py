@@ -425,13 +425,26 @@ class QQ3DRenderer(QAnsysRenderer):
         # TODO: is there a way to get all of the matrices in one query?
         #  If yes, change get_capacitance_matrix() to get all the matrices and delete this.
         all_mtx = {}
+        user_units = 'fF'  # Default units
         for i in range(1, 1000):  #1000 is an arbitrary large number
             try:
-                df_cmat, user_units = self.get_capacitance_matrix(
+                df_cmat, units = self.get_capacitance_matrix(
                     variation, 'AdaptivePass', pass_number=i)
+                # Check if the result is valid (PyAEDT may not support per-pass exports)
+                if df_cmat is None or units is None:
+                    # Per-pass export not supported (e.g., when using PyAEDT backend)
+                    self.logger.debug(
+                        f"Per-pass capacitance matrix export not supported for pass {i}. "
+                        "This is expected when using PyAEDT backend on Linux."
+                    )
+                    break
+                user_units = units
                 c_units = ureg(user_units).to('farads').magnitude
                 all_mtx[i] = df_cmat.values * c_units
             except pd.errors.EmptyDataError:
+                break
+            except Exception as e:
+                self.logger.debug(f"Error getting capacitance for pass {i}: {e}")
                 break
         return all_mtx, user_units
 

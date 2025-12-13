@@ -143,22 +143,32 @@ class LOManalysis(QAnalysis):
         s = self.setup
 
         if not isinstance(self.sim.capacitance_matrix, pd.DataFrame):
-            if self.sim.capacitance_matrix == {}:
+            if self.sim.capacitance_matrix == {} or self.sim.capacitance_matrix is None:
                 self.logger.warning(
                     'Please initialize the capacitance_matrix before executing this method.'
                     '`self.sim.capacitance_matrix = pd.DataFrame(...)`')
                 return
-            if self.sim.capacitance_all_passes == {}:
-                self.sim.capacitance_all_passes[
-                    1] = self.sim.capacitance_matrix.values
 
-        ureg = UnitRegistry()
+        ureg_local = UnitRegistry()
+        
+        # If capacitance_all_passes is empty (e.g., when using PyAEDT backend which
+        # doesn't support per-pass exports), use the main capacitance_matrix instead
+        if not self.sim.capacitance_all_passes:
+            self.logger.info(
+                'Per-pass capacitance matrices not available. Using final capacitance matrix.'
+            )
+            # Convert capacitance_matrix to farads if it's a DataFrame
+            if isinstance(self.sim.capacitance_matrix, pd.DataFrame):
+                c_units = ureg_local(self.sim.units).to('farads').magnitude
+                self.sim.capacitance_all_passes[1] = self.sim.capacitance_matrix.values * c_units
+            else:
+                self.sim.capacitance_all_passes[1] = self.sim.capacitance_matrix
         ic_amps = Convert.Ic_from_Lj(s.junctions.Lj, 'nH', 'A')
-        cj = ureg(f'{s.junctions.Cj} fF').to('farad').magnitude
-        fread = ureg(f'{s.freq_readout} GHz').to('GHz').magnitude
-        fbus = [ureg(f'{freq} GHz').to('GHz').magnitude for freq in s.freq_bus]
+        cj = ureg_local(f'{s.junctions.Cj} fF').to('farad').magnitude
+        fread = ureg_local(f'{s.freq_readout} GHz').to('GHz').magnitude
+        fbus = [ureg_local(f'{freq} GHz').to('GHz').magnitude for freq in s.freq_bus]
 
-        # derive number of coupling pads
+        # derive number of coupling pads from setup
         num_cpads = 2
         if isinstance(fread, list):
             num_cpads += len(fread) - 1
@@ -168,6 +178,39 @@ class LOManalysis(QAnalysis):
         # get the LOM for every pass
         all_res = {}
         for idx_cmat, df_cmat in self.sim.capacitance_all_passes.items():
+            # Validate matrix size before calling extraction
+            matrix_size = len(df_cmat)
+            expected_size = num_cpads + 3
+            
+            if matrix_size != expected_size:
+                # Try to auto-derive num_cpads from matrix size
+                # Matrix structure: bus1...busN-1, ground, Qubit_pad1, Qubit_pad2, readout
+                # So matrix_size = N + 3, where N = num_cpads
+                derived_cpads = matrix_size - 3
+                
+                if derived_cpads > 0:
+                    self.logger.warning(
+                        f"Capacitance matrix size ({matrix_size}) doesn't match expected size "
+                        f"({expected_size}) based on freq_bus/freq_readout settings. "
+                        f"Auto-adjusting num_cpads from {num_cpads} to {derived_cpads}."
+                    )
+                    num_cpads = derived_cpads
+                    
+                    # Also adjust fbus if needed
+                    if isinstance(fbus, list) and len(fbus) != num_cpads - 1:
+                        self.logger.warning(
+                            f"Number of bus frequencies ({len(fbus)}) doesn't match "
+                            f"derived coupling pads ({num_cpads - 1} buses). "
+                            f"Using first frequency for all buses."
+                        )
+                        fbus = [fbus[0]] * (num_cpads - 1) if num_cpads > 1 else []
+                else:
+                    self.logger.error(
+                        f"Capacitance matrix size ({matrix_size}) is too small. "
+                        f"Expected at least 4 (N + 3 where N >= 1)."
+                    )
+                    continue
+            
             res = extract_transmon_coupled_Noscillator(
                 df_cmat,
                 ic_amps,
@@ -179,7 +222,14 @@ class LOManalysis(QAnalysis):
                 print_info=bool(
                     idx_cmat == len(self.sim.capacitance_all_passes)))
             all_res[idx_cmat] = res
-        self.lumped_oscillator = all_res[len(self.sim.capacitance_all_passes)]
+        
+        # Get the last (or only) result
+        if all_res:
+            last_key = max(all_res.keys())
+            self.lumped_oscillator = all_res[last_key]
+        else:
+            self.logger.error('No LOM results could be calculated.')
+            return
         all_res = pd.DataFrame(all_res).transpose()
         all_res['χr MHz'] = abs(all_res['chi_in_MHz'].apply(lambda x: x[0]))
         all_res['gr MHz'] = abs(all_res['gbus'].apply(lambda x: x[0]))

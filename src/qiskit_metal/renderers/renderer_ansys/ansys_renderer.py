@@ -404,7 +404,7 @@ class QAnsysRenderer(QRendererAnalysis):
         if project_name:
             project_name = project_name.replace(".aedt", "")
         # open connection through pyEPR
-        import pythoncom
+        # import pythoncom
 
         try:
             self._pinfo = epr.ProjectInfo(
@@ -415,7 +415,8 @@ class QAnsysRenderer(QRendererAnalysis):
                 if not project_name else project_name,
                 design_name=self._options['design_name']
                 if not design_name else design_name)
-        except pythoncom.com_error as error:  # pylint: disable=no-member
+        # except pythoncom.com_error as error:  # pylint: disable=no-member
+        except Exception as error:  # pylint: disable=no-member
             print("com_error: ", error)
             hr, msg, exc, arg = error.args
             if (msg == "Invalid class string"
@@ -873,6 +874,7 @@ class QAnsysRenderer(QRendererAnalysis):
             pyEPR.ansys.HfssEMSetup: Pointer to the ansys setup object
         """
         # TODO: only use activate_ansys_setup?
+        setup = None
         if self.pinfo:
             if self.pinfo.design:
                 if "reuse_setup" in other_setup:
@@ -880,12 +882,21 @@ class QAnsysRenderer(QRendererAnalysis):
                         # delete_setup will check if setup exists, before deleting.
                         self.pinfo.design.delete_setup(name)
 
-                if self.pinfo.design.solution_type == "Eigenmode":
+                sol_type = self.pinfo.design.solution_type
+                if sol_type == "Eigenmode":
                     setup = self.add_eigenmode_setup(name, **other_setup)
-                elif self.pinfo.design.solution_type == "DrivenModal":
+                elif sol_type in ("DrivenModal", "HFSS Hybrid Modal Network", "HFSS Modal Network"):
                     setup = self.add_drivenmodal_setup(name, **other_setup)
-                elif self.pinfo.design.solution_type == "Q3D":
+                elif sol_type in ("DrivenTerminal", "HFSS Terminal Network"):
+                    setup = self.add_drivenmodal_setup(name, **other_setup)  # Use driven modal for terminal
+                elif sol_type == "Q3D":
                     setup = self.add_q3d_setup(name, **other_setup)
+                else:
+                    # Fallback for unknown HFSS types - try driven modal
+                    self.logger.warning(
+                        f"Unknown solution type '{sol_type}'. Attempting driven modal setup."
+                    )
+                    setup = self.add_drivenmodal_setup(name, **other_setup)
         return setup
 
     def initialize_cap_extract(self, **kwargs):
@@ -1278,11 +1289,12 @@ class QAnsysRenderer(QRendererAnalysis):
             ]) + qc_width / (2 * vlen) * np.array([y1 - y0, x0 - x1, 0])
             shortline = self.modeler.draw_polyline([p0, p1],
                                                    closed=False)  # sweepline
-            import pythoncom
+            # import pythoncom
 
             try:
                 self.modeler._sweep_along_path(shortline, poly_ansys)
-            except pythoncom.com_error as error:
+            # except pythoncom.com_error as error:
+            except Exception as error:
                 print("com_error: ", error)
                 hr, msg, exc, arg = error.args
                 if msg == "Exception occurred." and hr == -2147352567:
@@ -1552,11 +1564,12 @@ class QAnsysRenderer(QRendererAnalysis):
         surface if any such shapes exist."""
         for chip, shapes in self.chip_subtract_dict.items():
             if shapes:
-                import pythoncom
+                # import pythoncom
 
                 try:
                     self.modeler.subtract(f"ground_{chip}_plane", list(shapes))
-                except pythoncom.com_error as error:
+                # except pythoncom.com_error as error:
+                except Exception as error:
                     print("com_error: ", error)
                     hr, msg, exc, arg = error.args
                     if msg == "Exception occurred." and hr == -2147352567:
@@ -1697,6 +1710,9 @@ class QAnsysRenderer(QRendererAnalysis):
             dissipatives (dict, optional): Each element of this dictionary describes one dissipative.
                 Defaults to dict().
         """
+        if self.pinfo is None:
+            self.logger.error("pinfo is None - not connected to Ansys. Call connect_ansys() first.")
+            return
         if self.pinfo:
             if junctions:
                 for k, v in junctions.items():
@@ -1731,6 +1747,10 @@ class QAnsysRenderer(QRendererAnalysis):
         elif self.epr_distributed_analysis is None:
             self.epr_start()
 
+        if self.pinfo is None:
+            self.logger.error("pinfo is None - not connected to Ansys. Call connect_ansys() first.")
+            return None, None, None
+            
         if self.pinfo.dissipative["dielectrics_bulk"] is not None:
             eprd = self.epr_distributed_analysis
             energy_elec = eprd.calc_energy_electric()
