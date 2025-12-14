@@ -12,6 +12,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+import numpy as np
 import pandas as pd
 from pint import UnitRegistry
 
@@ -163,6 +164,43 @@ class LOManalysis(QAnalysis):
                 self.sim.capacitance_all_passes[1] = self.sim.capacitance_matrix.values * c_units
             else:
                 self.sim.capacitance_all_passes[1] = self.sim.capacitance_matrix
+        
+        # Filter out invalid (all-zero) matrices
+        # These can occur when the simulation converged before max_passes
+        valid_passes = {}
+        for pass_num, matrix in self.sim.capacitance_all_passes.items():
+            # Convert to numpy array if needed
+            if isinstance(matrix, pd.DataFrame):
+                matrix_values = matrix.values
+            else:
+                matrix_values = np.asarray(matrix)
+            
+            # Check if matrix is valid (not all zeros)
+            # Use an absolute tolerance for very small capacitances (femtofarads = 1e-15)
+            max_val = np.max(np.abs(matrix_values))
+            # Threshold: if max value is less than 1e-20 F (0.01 aF), consider it zero
+            if max_val > 1e-20:
+                valid_passes[pass_num] = matrix
+            else:
+                self.logger.debug(
+                    f"Pass {pass_num}: Matrix is all zeros (max value: {max_val}), skipping."
+                )
+        
+        if not valid_passes:
+            self.logger.error(
+                'No valid capacitance matrices found. All matrices appear to be zeros.'
+            )
+            return
+        
+        if len(valid_passes) < len(self.sim.capacitance_all_passes):
+            self.logger.info(
+                f"Filtered {len(self.sim.capacitance_all_passes) - len(valid_passes)} invalid "
+                f"passes (all-zero matrices). Using {len(valid_passes)} valid passes."
+            )
+        
+        # Replace capacitance_all_passes with only valid passes
+        self.sim.capacitance_all_passes = valid_passes
+        
         ic_amps = Convert.Ic_from_Lj(s.junctions.Lj, 'nH', 'A')
         cj = ureg_local(f'{s.junctions.Cj} fF').to('farad').magnitude
         fread = ureg_local(f'{s.freq_readout} GHz').to('GHz').magnitude
