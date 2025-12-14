@@ -422,10 +422,14 @@ class QQ3DRenderer(QAnsysRenderer):
             dict, str: dict of pd.DataFrames containing the capacitance matrix
                 for each simulation pass, and units.
         """
+        import numpy as np
+        
         # TODO: is there a way to get all of the matrices in one query?
         #  If yes, change get_capacitance_matrix() to get all the matrices and delete this.
         all_mtx = {}
         user_units = 'fF'  # Default units
+        consecutive_zeros = 0  # Track consecutive zero matrices
+        
         for i in range(1, 1000):  #1000 is an arbitrary large number
             try:
                 df_cmat, units = self.get_capacitance_matrix(
@@ -438,14 +442,39 @@ class QQ3DRenderer(QAnsysRenderer):
                         "This is expected when using PyAEDT backend on Linux."
                     )
                     break
+                
                 user_units = units
                 c_units = ureg(user_units).to('farads').magnitude
-                all_mtx[i] = df_cmat.values * c_units
+                matrix_values = df_cmat.values * c_units
+                
+                # Check if matrix is all zeros (simulation converged before this pass)
+                max_val = np.max(np.abs(matrix_values))
+                if max_val < 1e-20:  # Threshold for considering matrix as zero
+                    consecutive_zeros += 1
+                    self.logger.debug(
+                        f"Pass {i}: Matrix is all zeros (max={max_val}), likely beyond convergence."
+                    )
+                    # Stop after 2 consecutive zero matrices to confirm we're past convergence
+                    if consecutive_zeros >= 2:
+                        self.logger.debug(
+                            f"Stopping after {i} passes: {consecutive_zeros} consecutive zero matrices."
+                        )
+                        break
+                else:
+                    consecutive_zeros = 0
+                    all_mtx[i] = matrix_values
+                    
             except pd.errors.EmptyDataError:
                 break
             except Exception as e:
                 self.logger.debug(f"Error getting capacitance for pass {i}: {e}")
                 break
+        
+        if not all_mtx:
+            self.logger.warning("No valid capacitance matrices found for any pass.")
+        else:
+            self.logger.debug(f"Retrieved {len(all_mtx)} valid capacitance matrices.")
+            
         return all_mtx, user_units
 
     def lumped_oscillator_vs_passes(self, *args, **kwargs):
