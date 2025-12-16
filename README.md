@@ -95,11 +95,11 @@ Quantum Metal is now available on PyPI:
 `pip install quantum-metal`  
 Project page: https://pypi.org/project/quantum-metal/
 
-If you prefer installing from source, clone and install locally (steps below). Continuous integration runs on **Python 3.11 and 3.12** across Linux (Ubuntu 24.04), macOS 15, and Windows, plus separate jobs for lint and docs. Sticking to those versions mirrors the CI-tested setup; on Ubuntu you may need extra system libs for Gmsh (see CI script).
+If you prefer installing from source, clone and install locally (steps below). Continuous integration runs on **Python 3.10, 3.11 and 3.12** across Linux (Ubuntu 24.04), macOS 15, and Windows, plus separate jobs for lint and docs. Sticking to those versions mirrors the CI-tested setup; on Ubuntu you may need extra system libs for Gmsh (see CI script).
 
 > **Key notes to keep in mind:**
 >
-> * Python **3.11/3.12** mirror the CI matrix; earlier 3.10 also works but isn’t CI-covered.
+> * Python **3.10/3.11/3.12** mirror the CI matrix.
 > * macOS ARM users should avoid Python 3.12+ to prevent C/C++ toolchain errors.
 > * `uv` is the **preferred and fastest** method and avoids most scientific‑stack headaches.
 
@@ -108,44 +108,63 @@ First install `uv`, then clone the repository, use Python 3.11, set up the virtu
 
 - **macOS / Linux (bash):**
   ```bash
+  # Install uv on linux/macOS
   curl -LsSf https://astral.sh/uv/install.sh | sh
+  # Clone the repository
   git clone https://github.com/qiskit-community/qiskit-metal.git quantum-metal
+  # Change to the repository directory
   cd quantum-metal
-  uv python pin 3.11
-  uv venv
-  source .venv/bin/activate
-  uv pip install -r requirements.txt
+  # Create a new virtual environment
+  uv venv --python 3.11  # could also be 3.10 or 3.12
+  # Install the package in editable mode
   uv pip install -e .
+  # Activate the virtual environment
+  source .venv/bin/activate
   ```
 - **Windows (PowerShell):**
   ```powershell
+  # install uv on Windows 
   iwr https://astral.sh/uv/install.ps1 -UseBasicParsing | iex
+  # Clone the repository
   git clone https://github.com/qiskit-community/qiskit-metal.git quantum-metal
+  # Change to the repository directory
   cd quantum-metal
-  uv python pin 3.11
-  uv venv
-  .\.venv\Scripts\Activate.ps1
-  uv pip install -r requirements.txt
+  # Create a new virtual environment
+  uv venv --python 3.11  # could also be 3.10 or 3.12
+  # Install the package in editable mode
   uv pip install -e .
+  # Activate the virtual environment
+  .\.venv\Scripts\Activate.ps1
   ```
 On Ubuntu you may need system packages for Gmsh/Qt (see CI: `libglu1-mesa`, `libegl1-mesa-dev`), and on Windows/macOS ensure build tools/CLT are present if you add native extensions.
 
 ### Option 2: Conda (best for binary-heavy scientific stacks)
 
 ```bash
-conda create -n quantum-metal python=3.11
-conda activate quantum-metal
-pip install -r requirements.txt
-pip install -e .
+  # Clone the repository
+  git clone https://github.com/qiskit-community/qiskit-metal.git quantum-metal
+  # Change to the repository directory
+  cd quantum-metal
+  # Create a new conda environment
+  conda create -n quantum-metal -f environment.yml python=3.11 
+  # activate the conda environment
+  conda activate quantum-metal
+  # Install the package in editable mode 
+  python -m pip install --no-deps -e .
 ```
 
 ### Option 3: Standard venv (simple, lightweight)
 
+First, ensure that Python 3.11 is installed on your system. You may also use Python 3.10 or 3.12.
+
 ```bash
+# Create a new virtual environment
 python3.11 -m venv qm_env
+# Activate the virtual environment
 source qm_env/bin/activate
+# Upgrade pip to the latest version
 pip install --upgrade pip
-pip install -r requirements.txt
+# Install the package in editable mode (with its dependencies)
 pip install -e .
 ```
 
