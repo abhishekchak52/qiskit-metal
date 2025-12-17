@@ -204,7 +204,7 @@ class TransmonCross(BaseQubit):  # pylint: disable=invalid-name
         # extract from the connector later, but since allowing different connector types,
         # this seems more straightforward.
         port_line = draw.LineString([(-c_c_l - c_w, -c_c_w / 2),
-                                     (-c_c_l - c_w, c_w / 2)])
+                                     (-c_c_l - c_w, c_c_w / 2)])
 
         claw_rotate = 0
         if con_loc > 135:
