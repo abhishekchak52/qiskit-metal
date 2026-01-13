@@ -511,7 +511,7 @@ as part of the larger umbrella of community-driven Quantum projects. This reposi
 <section id="reporting-bugs-and-requesting-enhancements">
 <h2>Reporting Bugs and Requesting Enhancements<a class="headerlink" href="#reporting-bugs-and-requesting-enhancements" title="Link to this heading">¶</a></h2>
 <p>When you encounter a problem, please open an issue in the
-issue tracker: <a class="reference external" href="https://github.com/Quantum/Quantum-metal/issues">https://github.com/Quantum/Quantum-metal/issues</a></p>
+<a class="reference external" href="https://github.com/qiskit-community/qiskit-metal/issues">issue tracker</a>.</p>
 <p>When reporting an issue, please follow this template:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>&lt;!--- Provide a general summary of the issue in the Title above --&gt;
 
@@ -590,7 +590,7 @@ See <a class="reference external" href="https://peps.python.org/pep-0735/">PEP 7
 <p class="admonition-title">Attention</p>
 <p>The style guide presented below is being deprecated. Quantum Metal v0.5+ uses ruff for linting and formatting. An updated style guide will be added soon.</p>
 </div>
-<p>To enforce a consistent code style in the project, we use customized <a class="reference external" href="https://www.pylint.org">Pylint</a> for linting and <a class="reference external" href="https://google.github.io/styleguide/pyguide.html">YAPF`&lt;https://github.com/google/yapf&gt;__ with the `Google style</a> for auto formatting. The custom
+<p>To enforce a consistent code style in the project, we use customized <a class="reference external" href="https://www.pylint.org">Pylint</a> for linting and <a class="reference external" href="https://github.com/google/yapf">YAPF</a> with the <a class="reference external" href="https://google.github.io/styleguide/pyguide.html">Google style</a> for auto formatting. The custom
 <cite>.pylintrc</cite> and <cite>.style.yapf</cite> files is located in the root of the repository.
 Our CI pipeline will enforce these styles when you make the pull request.</p>
 </section>
@@ -966,10 +966,10 @@ uv<span class="w"> </span>run<span class="w"> </span>--group<span class="w"> </s
 </div>
 <p>Notes:</p>
 <ul class="simple">
-<li><p><cite>-j auto</cite> enables parallel Sphinx workers to speed up the build on multi-core machines.</p></li>
-<li><p>The HTML output is written to <cite>/docs/_build/html/</cite>. Use <cite>open _build/html/index.html</cite> (macOS) or <cite>python -m http.server 8000 -d _build/html</cite> to preview locally.</p></li>
-<li><p>We also added -v for verbose output and -T traceback during the build.</p></li>
-<li><p>Env variable <cite>Quantum_DOCS_BUILD_TUTORIALS=never</cite> skips executing notebooks during the build (fast; uses stored outputs if present).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-j</span> <span class="pre">auto</span></code> enables parallel Sphinx workers to speed up the build on multi-core machines.</p></li>
+<li><p>The HTML output is written to <code class="docutils literal notranslate"><span class="pre">/docs/_build/html/</span></code>. Use <code class="docutils literal notranslate"><span class="pre">open</span> <span class="pre">_build/html/index.html</span></code> (macOS) or <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">http.server</span> <span class="pre">8000</span> <span class="pre">-d</span> <span class="pre">_build/html</span></code> to preview locally.</p></li>
+<li><p>We also added <code class="docutils literal notranslate"><span class="pre">-v</span></code> for verbose output and <code class="docutils literal notranslate"><span class="pre">-T</span></code> traceback during the build.</p></li>
+<li><p>Env variable <code class="docutils literal notranslate"><span class="pre">Quantum_DOCS_BUILD_TUTORIALS=never</span></code> skips executing notebooks during the build (fast; uses stored outputs if present).</p></li>
 </ul>
 <p>For convenience, the first command can be run using tox (from the root directory of the repository) as follows:</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>tox<span class="w"> </span>-e<span class="w"> </span>docs
@@ -1025,7 +1025,7 @@ uv<span class="w"> </span>publish<span class="w"> </span>--token<span class="w">
 </section>
 <section id="tutorials">
 <h2>Tutorials<a class="headerlink" href="#tutorials" title="Link to this heading">¶</a></h2>
-<p>Jupyter notebook tutorials showing off features of Quantum Metal are located in the <cite>_tutorials_</cite>
+<p>Jupyter notebook tutorials showing off features of Quantum Metal are located in the <cite>tutorials</cite>
 folder. If you add a new feature, please add a demonstration of its use to a notebook or start a new notebook.</p>
 </section>
 </section>
@@ -1065,7 +1065,7 @@ folder. If you add a new feature, please add a demonstration of its use to a not
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/01/11</div>
+              Last updated on 2026/01/13</div>
           </div>
           <div class="right-details">
             
