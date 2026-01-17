@@ -1,5 +1,7 @@
 name: Bump Version and Tag
-
+# This workflow is used to bump the package version and push a git tag to GitHub.
+# It also creates a draft release with the new version and triggers the PyPI publish workflow.
+# Needs discussion to resolve branch protection rules for this workflow.
 on:
   workflow_dispatch:
     inputs:
