@@ -256,6 +256,9 @@ class QTableView_AllComponents(QTableView, QWidget_PlaceholderText):
 
         self.logger.debug(f'Highlighting {selected_names}')
         self.gui.highlight_components(selected_names)
+        if not selected_names and self.gui and self.gui.component_window:
+            # Reset component editor when nothing is selected
+            self.gui.component_window.set_component(None)
 
     def delete_selected_rows(self, *args):
         """
