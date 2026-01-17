@@ -6,7 +6,7 @@ For the offical user-facing changelog for a particular release can be found in t
 
 The changelog for all releases can be found in the release page: [![Releases](https://img.shields.io/github/release/Qiskit/qiskit-metal.svg?style=popout-square)](https://github.com/Qiskit/qiskit-metal/releases)
 
-## Quantum Metal v0.5.3 (Jan 12, 2026)
+## Quantum Metal v0.5.3 (Jan 17, 2026)
 
 - Various dependency updates. 
 - Removed descartes and cython dependencies (unused).
@@ -15,6 +15,8 @@ The changelog for all releases can be found in the release page: [![Releases](ht
 - Update various parts in the docs to indicate near-term versioning updates. 
 - Update uv version to 0.9.24 in CI. Remove step to upgrade runner packages in CI for workflows speedup. 
 - Convert package from [flat layout to src layout](https://packaging.python.org/en/latest/discussions/src-layout-vs-flat-layout/#src-layout-vs-flat-layout). This is a forward looking change that will help decouple source code from docs and tests. In this configurations, the any package code must be imported using the package name, instead of relative imports as before. This also requires installing the package in the virtual environment (either as editable or via the wheel) to import it, which we already support in our uv-based workflows. 
+- Fixed floating `QLabel` bug in `MetalGUI` [#1031](https://github.com/qiskit-community/qiskit-metal/issues/1031).
+- New CI workflow to bump version using uv, commit and push a git tag and create a draft release. This also triggers the PyPI release. 
 
 
 ## Quantum Metal v0.5.2 (Dec 11, 2025)
