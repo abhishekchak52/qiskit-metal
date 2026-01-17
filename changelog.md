@@ -17,6 +17,7 @@ The changelog for all releases can be found in the release page: [![Releases](ht
 - Convert package from [flat layout to src layout](https://packaging.python.org/en/latest/discussions/src-layout-vs-flat-layout/#src-layout-vs-flat-layout). This is a forward looking change that will help decouple source code from docs and tests. In this configurations, the any package code must be imported using the package name, instead of relative imports as before. This also requires installing the package in the virtual environment (either as editable or via the wheel) to import it, which we already support in our uv-based workflows. 
 - Fixed floating `QLabel` bug in `MetalGUI` [#1031](https://github.com/qiskit-community/qiskit-metal/issues/1031).
 - New CI workflow to bump version using uv, commit and push a git tag and create a draft release. This also triggers the PyPI release. 
+- Update CI workflows to use Python 3.12.
 
 
 ## Quantum Metal v0.5.2 (Dec 11, 2025)

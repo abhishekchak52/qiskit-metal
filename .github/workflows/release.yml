@@ -19,7 +19,7 @@ jobs:
     env:
       FORCE_COLOR: "1"
       UV_MANAGED_PYTHON: "True"
-      UV_PYTHON: "3.11"
+      UV_PYTHON: "3.12"
 
     permissions:
       contents: read
