@@ -3,11 +3,17 @@ name: Publish to PyPI
 on:
   push:
     tags:
-      - "*"           # consider 'v*' if you only want version tags
+      - "v*"
   workflow_dispatch:
+  workflow_call:
+    inputs:
+      tag:
+        description: "Tag to checkout and publish"
+        type: string
+        required: false
 
 jobs:
-  wheel-build:
+  publish:
     name: Build and Publish to PyPI
     runs-on: ubuntu-24.04
     env:
@@ -22,6 +28,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
         with:
+          ref: ${{ inputs.tag || github.ref }}
           fetch-depth: 1
 
       - name: Install uv

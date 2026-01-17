@@ -1,0 +1,98 @@
+name: Bump Version and Tag
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: "Semver part to bump"
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+        default: patch
+      version:
+        description: "Exact version to set (overrides bump)"
+        required: false
+
+jobs:
+  bump-and-tag:
+    name: Bump version and push tag
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    outputs:
+      tag: ${{ steps.version.outputs.tag }}
+    env:
+      FORCE_COLOR: "1"
+      UV_MANAGED_PYTHON: "True"
+      UV_PYTHON: "3.11"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: "0.9.24"
+          enable-cache: true
+
+      - name: Bump version with uv
+        run: |
+          if [ -n "${{ inputs.version }}" ]; then
+            uv version "${{ inputs.version }}" --frozen
+          else
+            uv version --bump "${{ inputs.bump }}" --frozen
+          fi
+
+      - name: Read version
+        id: version
+        run: |
+          version="$(uv version --short --color never)"
+          echo "version=${version}" >> "${GITHUB_OUTPUT}"
+          echo "tag=v${version}" >> "${GITHUB_OUTPUT}"
+
+      - name: Commit and tag via GitHub API
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          # Get current file SHA (required for Contents API update)
+          file_sha=$(gh api repos/${{ github.repository }}/contents/pyproject.toml --jq '.sha')
+          
+          # Update pyproject.toml via Contents API (creates a verified commit)
+          gh api -X PUT repos/${{ github.repository }}/contents/pyproject.toml \
+            -f message="Bump version to v${VERSION}" \
+            -f content="$(base64 -w0 pyproject.toml)" \
+            -f sha="$file_sha" \
+            -f branch="${{ github.ref_name }}"
+          
+          # Get the commit SHA we just created
+          commit_sha=$(gh api repos/${{ github.repository }}/git/ref/heads/${{ github.ref_name }} --jq '.object.sha')
+          
+          # Create the tag
+          gh api repos/${{ github.repository }}/git/refs \
+            -f ref="refs/tags/v${VERSION}" \
+            -f sha="$commit_sha"
+
+      - name: Create draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          gh release create "v${VERSION}" \
+            --draft \
+            --generate-notes \
+            --title "v${VERSION} Quantum Metal (Qiskit Metal) beta release!" \
+            --verify-tag
+
+  publish:
+    name: Publish to PyPI
+    needs: bump-and-tag
+    uses: ./.github/workflows/release.yml
+    with:
+      tag: ${{ needs.bump-and-tag.outputs.tag }}
+    secrets: inherit
