@@ -2171,7 +2171,7 @@ wheels = [
 
 [[package]]
 name = "pyaedt"
-version = "0.24.0"
+version = "0.23.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "defusedxml" },
@@ -2185,9 +2185,9 @@ dependencies = [
     { name = "tomli", marker = "python_full_version < '3.11'" },
     { name = "tomli-w" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/03/87/c0a840ec0a911041960b4430d2d6c5c756857549af6666f02f4049490443/pyaedt-0.24.0.tar.gz", hash = "sha256:2f33b9415da27a8f401deb3fe5a9a70dce2af6da1c99f042686107aa19bb7c9e", size = 26758650, upload-time = "2026-01-10T08:32:08.499Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/9c/d8/5769707ed9005b9b4f3d50cb9d859ba4574cdca2b4393be7507a01082047/pyaedt-0.23.0.tar.gz", hash = "sha256:7acb745cb6519d2cf3a39b9ced77f65ae18fb512fce9a3d2931575774b1ee536", size = 26879213, upload-time = "2025-11-27T19:31:34.602Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/a0/ff/6fbee4e70c4818629714cbcccaa36a05e83c5d2e0ba7a5dae70ae2051b32/pyaedt-0.24.0-py3-none-any.whl", hash = "sha256:2519382db485d49d245a9b9b491473f48f3304d71a35948bba1e89a0d31730e8", size = 7713742, upload-time = "2026-01-10T08:32:05.664Z" },
+    { url = "https://files.pythonhosted.org/packages/e6/7d/bbc3f5f10da10a0e195da17c381b74fe2f28c09207f8e74e441e90b84432/pyaedt-0.23.0-py3-none-any.whl", hash = "sha256:c421d1b529a99ac96753a67d790a2827cf76f36d27b48a29834f9a7e73c7346d", size = 7664478, upload-time = "2025-11-27T19:31:31.971Z" },
 ]
 
 [[package]]
@@ -2748,7 +2748,7 @@ wheels = [
 
 [[package]]
 name = "quantum-metal"
-version = "0.5.2.post4"
+version = "0.5.3.post1"
 source = { editable = "." }
 dependencies = [
     { name = "addict" },
@@ -2811,7 +2811,7 @@ requires-dist = [
     { name = "numpy", specifier = ">=1.24.2,<2" },
     { name = "pandas", specifier = ">=2.1.1" },
     { name = "pint", specifier = ">=0.21.0" },
-    { name = "pyaedt", specifier = ">=0.21" },
+    { name = "pyaedt", specifier = ">=0.21,<0.24" },
     { name = "pyepr-quantum", specifier = ">=0.9.0" },
     { name = "pygments", specifier = ">=2.14.0" },
     { name = "pyside6", specifier = ">=6.8" },

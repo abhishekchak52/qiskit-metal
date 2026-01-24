@@ -6,6 +6,10 @@ For the offical user-facing changelog for a particular release can be found in t
 
 The changelog for all releases can be found in the release page: [![Releases](https://img.shields.io/github/release/Qiskit/qiskit-metal.svg?style=popout-square)](https://github.com/Qiskit/qiskit-metal/releases)
 
+## Quantum Metal v0.5.3.post1 (Jan 23, 2026)
+- Pinned pyaedt to less than v0.24 due to bugs. 
+- Updated gmsh dependency 4.11.1 → 4.15.0
+
 ## Quantum Metal v0.5.3 (Jan 17, 2026)
 
 - Various dependency updates. 
