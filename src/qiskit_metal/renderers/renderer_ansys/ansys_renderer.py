@@ -404,7 +404,15 @@ class QAnsysRenderer(QRendererAnalysis):
         if project_name:
             project_name = project_name.replace(".aedt", "")
         # open connection through pyEPR
-        import pythoncom
+        try:
+            import pythoncom
+
+            del pythoncom
+        except (ImportError, ModuleNotFoundError):
+            logger.warning(
+                """IMPORT WARNING:
+            Python package 'pythoncom' could not be loaded. This may create problems if you are using the COM interface for Ansys on Windows.
+            """)
 
         try:
             self._pinfo = epr.ProjectInfo(
@@ -1278,7 +1286,15 @@ class QAnsysRenderer(QRendererAnalysis):
             ]) + qc_width / (2 * vlen) * np.array([y1 - y0, x0 - x1, 0])
             shortline = self.modeler.draw_polyline([p0, p1],
                                                    closed=False)  # sweepline
-            import pythoncom
+            try:
+                import pythoncom
+
+                del pythoncom
+            except (ImportError, ModuleNotFoundError):
+                logger.warning(
+                    """IMPORT WARNING:
+                Python package 'pythoncom' could not be loaded. This may create problems if you are using the COM interface for Ansys on Windows.
+                """)
 
             try:
                 self.modeler._sweep_along_path(shortline, poly_ansys)
@@ -1552,7 +1568,15 @@ class QAnsysRenderer(QRendererAnalysis):
         surface if any such shapes exist."""
         for chip, shapes in self.chip_subtract_dict.items():
             if shapes:
-                import pythoncom
+                try:
+                    import pythoncom
+
+                    del pythoncom
+                except (ImportError, ModuleNotFoundError):
+                    logger.warning(
+                        """IMPORT WARNING:
+                    Python package 'pythoncom' could not be loaded. This may create problems if you are using the COM interface for Ansys on Windows.
+                    """)
 
                 try:
                     self.modeler.subtract(f"ground_{chip}_plane", list(shapes))
