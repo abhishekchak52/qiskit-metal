@@ -25,8 +25,14 @@ from shapely.geometry import LinearRing, Polygon  # Point, LineString,
 
 from qiskit_metal import Dict
 from qiskit_metal.draw import BaseGeometry
-from qiskit_metal.renderers.renderer_mpl.mpl_interaction import figure_pz
 from qiskit_metal.renderers.renderer_mpl.patch import PolygonPatch
+
+# Conditionally import figure_pz - only available when not in headless mode
+from qiskit_metal import config
+if not config.is_headless():
+    from qiskit_metal.renderers.renderer_mpl.mpl_interaction import figure_pz
+else:
+    figure_pz = None  # Will use plt.figure() fallback
 
 __all__ = [
     '_render_poly_zkm', 'render_poly', 'render', 'style_axis_simple',
@@ -324,7 +330,11 @@ def figure_spawn(fig_kw=None):
     """
     if not fig_kw:
         fig_kw = {}
-    fig_draw = figure_pz(**{**dict(num=1), **fig_kw})
+    # Use Qt-enhanced figure_pz if available, otherwise fall back to standard matplotlib
+    if figure_pz is not None:
+        fig_draw = figure_pz(**{**dict(num=1), **fig_kw})
+    else:
+        fig_draw = plt.figure(**{**dict(num=1), **fig_kw})
     fig_draw.clf()
 
     ax_draw = fig_draw.add_subplot(1, 1, 1)

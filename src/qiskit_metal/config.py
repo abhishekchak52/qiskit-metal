@@ -146,6 +146,16 @@ def is_building_docs() -> bool:
     # return Path.exists(build_docs_file)
 
 
+def is_headless() -> bool:
+    """Check if running in headless mode (no GUI).
+    
+    Returns:
+        bool: True if QISKIT_METAL_HEADLESS env var is set to a truthy value
+    """
+    val = os.getenv('QISKIT_METAL_HEADLESS', '')
+    return val.lower() in ('1', 'true', 'yes', 'on')
+
+
 _ipython = is_using_ipython()
 
 ####################################################################################

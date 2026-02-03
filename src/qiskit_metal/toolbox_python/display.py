@@ -112,6 +112,11 @@ def get_screenshot(self: 'QMainWindow',
         do_display (bool): True to display the file.  Defaults to True.
         disp_ops (dict): Disctionary of options.  Defaults to None.
     """
+    from qiskit_metal import config
+    if config.is_headless():
+        raise RuntimeError("get_screenshot() is not available in headless mode. "
+                          "GUI functionality requires QISKIT_METAL_HEADLESS to be unset.")
+    
     from PySide6.QtWidgets import QApplication, QMainWindow
 
     path = Path(name).resolve()

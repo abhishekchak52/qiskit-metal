@@ -59,6 +59,12 @@ def __setup_Qt_backend():  # pylint: disable=invalid-name
     to prevent Qt windows from hanging.
     """
     # pylint: disable=import-outside-toplevel
+    
+    # Skip Qt setup entirely in headless mode
+    # Check environment variable directly to avoid circular import
+    headless_val = os.getenv('QISKIT_METAL_HEADLESS', '')
+    if headless_val.lower() in ('1', 'true', 'yes', 'on'):
+        return
 
     # When in vscode and in debug-mode, may want to comment
     # next line out, "os.environ["QT_API"] = "pyside2""
@@ -153,8 +159,11 @@ from qiskit_metal import analyses
 from qiskit_metal import toolbox_python
 from qiskit_metal import toolbox_metal
 
-# Metal GUI
-from qiskit_metal._gui.main_window import MetalGUI
+# Metal GUI - only import if not headless
+if not config.is_headless():
+    from qiskit_metal._gui.main_window import MetalGUI
+else:
+    MetalGUI = None  # Placeholder for headless mode
 
 # Utility modules
 # For plotting in matplotlib;  May be superseded by a renderer?
