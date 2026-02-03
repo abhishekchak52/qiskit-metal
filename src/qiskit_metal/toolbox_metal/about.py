@@ -47,9 +47,8 @@ def about():
         str: About message
     """
     import qiskit_metal
-    from PySide6.QtCore import __version__ as QT_VERSION_STR
-    from PySide6 import __version__ as PYSIDE_VERSION_STR
-
+    from qiskit_metal import config
+    
     try:
         import matplotlib
         #matplotlib_ver = matplotlib.__version__
@@ -57,10 +56,18 @@ def about():
         #matplotlib_ver = 'None'
         pass
 
-    try:
-        from sip import SIP_VERSION_STR
-    except:
-        SIP_VERSION_STR = 'Not installed'
+    # Only import Qt version info if not in headless mode
+    if not config.is_headless():
+        from PySide6.QtCore import __version__ as QT_VERSION_STR
+        from PySide6 import __version__ as PYSIDE_VERSION_STR
+        try:
+            from sip import SIP_VERSION_STR
+        except:
+            SIP_VERSION_STR = 'Not installed'
+    else:
+        QT_VERSION_STR = 'N/A (headless mode)'
+        PYSIDE_VERSION_STR = 'N/A (headless mode)'
+        SIP_VERSION_STR = 'N/A (headless mode)'
     # Riverbank: SIP is a tool for quickly writing Python modules that interface with
     # C++ and C libraries.
 

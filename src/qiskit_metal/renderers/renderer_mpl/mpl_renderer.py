@@ -26,8 +26,6 @@ from cycler import cycler
 from qiskit_metal.renderers.renderer_mpl.patch import PolygonPatch
 from IPython.display import display
 from matplotlib.axes import Axes
-from matplotlib.backends.backend_qt5agg import \
-    FigureCanvasQTAgg as FigureCanvas
 from matplotlib.cbook import _OrderedSet
 from matplotlib.collections import LineCollection, PatchCollection
 from matplotlib.figure import Figure
@@ -46,6 +44,8 @@ if not config.is_building_docs():
     from qiskit_metal.toolbox_python.utility_functions import bad_fillet_idxs
 
 if TYPE_CHECKING:
+    from matplotlib.backends.backend_qt5agg import \
+        FigureCanvasQTAgg as FigureCanvas
     from ..._gui.main_window import MetalGUI
     from ..._gui.widgets.plot_widget.plot_window import QMainWindowPlot
     from .mpl_canvas import PlotCanvas
