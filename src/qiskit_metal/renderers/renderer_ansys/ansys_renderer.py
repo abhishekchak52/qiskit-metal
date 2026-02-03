@@ -27,6 +27,7 @@ from collections import defaultdict
 from platform import system
 from scipy.spatial import distance
 
+
 import shapely
 import pyEPR as epr
 from pyEPR.ansys import parse_units, HfssApp, release
@@ -409,7 +410,7 @@ class QAnsysRenderer(QRendererAnalysis):
 
             del pythoncom
         except (ImportError, ModuleNotFoundError):
-            logger.warning(
+            self.logger.warning(
                 """IMPORT WARNING:
             Python package 'pythoncom' could not be loaded. This may create problems if you are using the COM interface for Ansys on Windows.
             """)
@@ -968,7 +969,7 @@ class QAnsysRenderer(QRendererAnalysis):
                             self.pinfo.setup = self.new_ansys_setup(
                                 name=setup_name)
                     else:
-                        self.logger.warning(f"Please specify a setup_name.")
+                        self.logger.warning("Please specify a setup_name.")
                 else:
                     self.logger.warning(
                         "Design not found in selected project, have you opened a design?"
@@ -1044,9 +1045,6 @@ class QAnsysRenderer(QRendererAnalysis):
         self.render_chips(box_plus_buffer=box_plus_buffer)
         self.subtract_from_ground()
         self.add_mesh()
-
-    def render_chip(self):
-        pass
 
     def render_component(self):
         pass
@@ -1291,7 +1289,7 @@ class QAnsysRenderer(QRendererAnalysis):
 
                 del pythoncom
             except (ImportError, ModuleNotFoundError):
-                logger.warning(
+                self.logger.warning(
                     """IMPORT WARNING:
                 Python package 'pythoncom' could not be loaded. This may create problems if you are using the COM interface for Ansys on Windows.
                 """)
@@ -1573,7 +1571,7 @@ class QAnsysRenderer(QRendererAnalysis):
 
                     del pythoncom
                 except (ImportError, ModuleNotFoundError):
-                    logger.warning(
+                    self.logger.warning(
                         """IMPORT WARNING:
                     Python package 'pythoncom' could not be loaded. This may create problems if you are using the COM interface for Ansys on Windows.
                     """)
