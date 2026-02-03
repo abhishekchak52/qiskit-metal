@@ -516,8 +516,6 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_metal.renderers.renderer_mpl.patch</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolygonPatch</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">IPython.display</span><span class="w"> </span><span class="kn">import</span> <span class="n">display</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.axes</span><span class="w"> </span><span class="kn">import</span> <span class="n">Axes</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.backends.backend_qt5agg</span><span class="w"> </span><span class="kn">import</span> \
-    <span class="n">FigureCanvasQTAgg</span> <span class="k">as</span> <span class="n">FigureCanvas</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.cbook</span><span class="w"> </span><span class="kn">import</span> <span class="n">_OrderedSet</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">LineCollection</span><span class="p">,</span> <span class="n">PatchCollection</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.figure</span><span class="w"> </span><span class="kn">import</span> <span class="n">Figure</span>
@@ -536,6 +534,8 @@
     <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_metal.toolbox_python.utility_functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">bad_fillet_idxs</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.backends.backend_qt5agg</span><span class="w"> </span><span class="kn">import</span> \
+        <span class="n">FigureCanvasQTAgg</span> <span class="k">as</span> <span class="n">FigureCanvas</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">..._gui.main_window</span><span class="w"> </span><span class="kn">import</span> <span class="n">MetalGUI</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">..._gui.widgets.plot_widget.plot_window</span><span class="w"> </span><span class="kn">import</span> <span class="n">QMainWindowPlot</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">.mpl_canvas</span><span class="w"> </span><span class="kn">import</span> <span class="n">PlotCanvas</span>
@@ -1091,7 +1091,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/01/24</div>
+              Last updated on 2026/02/03</div>
           </div>
           <div class="right-details">
             
